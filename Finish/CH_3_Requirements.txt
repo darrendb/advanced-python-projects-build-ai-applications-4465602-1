@@ -1,3 +1,5 @@
+unstructured-client==0.18.0
+dataclasses-json==0.5.14
 unstructured[all-docs]
 langchain
 openai
@@ -14,6 +16,17 @@ html2text
 faiss-cpu
 pdf2image
 python-dotenv
-langchain-community
+langchain_community==0.0.19
 docx2txt
 langchain_openai
+#
+# pip install unstructured-client==0.18.0
+# pip install dataclasses-json==0.5.14
+# pip check pymongo
+# pip show langchain_community
+# from langchain_community.vectorstores import FAISS
+# print(hasattr(FAISS, "from_documents"))
+# pip index versions langchain_community
+# pip install langchain_community==0.0.19
+# pip check langchain_community
+#

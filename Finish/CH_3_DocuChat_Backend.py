@@ -1,11 +1,9 @@
-from pydantic import BaseModel
-import pymongo
-# Import traceback for error handling
-import traceback
-
 # Import os and sys for system-related operations
 import os, sys
 import traceback  # Import traceback for error handling
+from pydantic import BaseModel
+import pymongo
+from dotenv import load_dotenv
 from fastapi import (
     FastAPI,
     UploadFile,
@@ -32,31 +30,17 @@ import awswrangler as wr  # Import AWS Wrangler for working with AWS services
 
 import boto3  # Import the boto3 library for interacting with AWS services
 
-# Import the os module for system-related operations
-
-# Check if the operating system is Windows
-if os.name == "nt":  # Windows
-    # If it's Windows, import the `load_dotenv` function from the `dotenv` library
-    from dotenv import load_dotenv
-
-    # Load environment variables from a `.secrets.env` file (used for local development)
-    load_dotenv(".secrets.env")
-
+# Load environment variables from a `.secrets.env` file (used for local development)
+load_dotenv(dotenv_path=".env")
+# os.getenv('ENV_VAR_NAME')
 # Retrieve and assign environment variables to variables
-# S3_KEY = os.environ.get("S3_KEY")  # AWS S3 access key
-# S3_SECRET = os.environ.get("S3_SECRET")  # AWS S3 secret access key
-# S3_BUCKET = os.environ.get("S3_BUCKET")  # AWS S3 bucket name
-# S3_REGION = os.environ.get("S3_REGION")  # AWS S3 region
-# OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")  # OpenAI API key
-# MONGO_URL = os.environ.get("MONGO_URL")  # MongoDB connection URL
-# S3_PATH = os.environ.get("S3_PATH")  # AWS S3 pathi
-
-os.environ['OPENAI_API_KEY']="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"
-S3_KEY=""
-S3_SECRET=""
-S3_BUCKET=""
-S3_REGION=""
-S3_PATH=""
+# S3_KEY = os.getenv("S3_KEY")  # AWS S3 access key
+# S3_SECRET = os.getenv("S3_SECRET")  # AWS S3 secret access key
+# S3_BUCKET = os.getenv("S3_BUCKET")  # AWS S3 bucket name
+# S3_REGION = os.getenv("S3_REGION")  # AWS S3 region
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")  # OpenAI API key
+# MONGO_URL = os.getenv("MONGO_URL")  # MongoDB connection URL
+# S3_PATH = os.getenv("S3_PATH")  # AWS S3 path
 
 
 try:
@@ -151,6 +135,7 @@ def get_response(
 
     all_splits = text_splitter.split_documents(data)
     # 3. store data in vector db to conduct searc
+    # from langchain_community.vectorstores import FAISS
     vectorstore = FAISS.from_documents(all_splits, embeddings)
     # 4. Init openai
     llm = ChatOpenAI(model_name=model, temperature=temperature)
