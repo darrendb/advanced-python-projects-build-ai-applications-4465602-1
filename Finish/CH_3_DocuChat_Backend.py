@@ -35,13 +35,13 @@ import boto3  # Import the boto3 library for interacting with AWS services
 load_dotenv(dotenv_path=".env")
 # os.getenv('ENV_VAR_NAME')
 # Retrieve and assign environment variables to variables
-# S3_KEY = os.getenv("S3_KEY")  # AWS S3 access key
-# S3_SECRET = os.getenv("S3_SECRET")  # AWS S3 secret access key
-# S3_BUCKET = os.getenv("S3_BUCKET")  # AWS S3 bucket name
-# S3_REGION = os.getenv("S3_REGION")  # AWS S3 region
+S3_KEY = os.getenv("S3_KEY")  # AWS S3 access key
+S3_SECRET = os.getenv("S3_SECRET")  # AWS S3 secret access key
+S3_BUCKET = os.getenv("S3_BUCKET")  # AWS S3 bucket name
+S3_REGION = os.getenv("S3_REGION")  # AWS S3 region
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")  # OpenAI API key
-# MONGO_URL = os.getenv("MONGO_URL")  # MongoDB connection URL
-# S3_PATH = os.getenv("S3_PATH")  # AWS S3 path
+MONGO_URL = os.getenv("MONGO_URL")  # MongoDB connection URL
+S3_PATH = os.getenv("S3_PATH")  # AWS S3 path
 
 
 try:

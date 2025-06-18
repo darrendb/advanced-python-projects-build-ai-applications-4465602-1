@@ -1,3 +1,10 @@
+# ddb branch notes
+1. How to find the MongoDB connection string - https://www.mongodb.com/docs/manual/reference/connection-string/#find-your-connection-string
+
+2. Here's how to create an AWS S3 bucket - https://docs.aws.amazon.com/AmazonS3/latest/userguide/creating-bucket.html
+
+
+
 # Advanced Python Projects: Build AI Applications
 This is the repository for the LinkedIn Learning course `Advanced Python Projects: Build AI Applications`. The full course is available from [LinkedIn Learning][lil-course-url].
 
