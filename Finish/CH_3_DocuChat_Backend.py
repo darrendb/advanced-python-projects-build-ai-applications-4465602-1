@@ -14,7 +14,8 @@ from fastapi.responses import JSONResponse  # Import JSONResponse for returning 
 from fastapi.middleware.cors import CORSMiddleware  # Import CORS middleware to handle Cross-Origin Resource Sharing
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings
-from langchain_community.vectorstores import FAISS
+# from langchain_community.vectorstores import FAISS
+from langchain_community.vectorstores.faiss import FAISS
 # from langchain_community.document_loaders import S3FileLoader
 from langchain_community.document_loaders import Docx2txtLoader,PyPDFLoader
 
