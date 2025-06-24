@@ -1,8 +1,10 @@
 unstructured-client==0.18.0
 dataclasses-json==0.5.14
 unstructured[all-docs]
-langchain
-openai
+openai<2.0.0
+langchain<0.1.0
+langchain-community<0.0.10
+langchain-openai<0.0.6
 tiktoken
 fastapi
 uvicorn
@@ -16,9 +18,7 @@ html2text
 faiss-cpu
 pdf2image
 python-dotenv
-langchain_community==0.0.19
 docx2txt
-langchain_openai
 #
 # pip install unstructured-client==0.18.0
 # pip install dataclasses-json==0.5.14
@@ -30,3 +30,18 @@ langchain_openai
 # pip install langchain_community==0.0.19
 # pip check langchain_community
 #
+
+# langchain                                0.0.334
+# langchain-community                      0.0.19
+# langchain-core                           0.1.23
+# langchain-openai                         0.0.6
+
+# pip install "langchain<0.1.0"
+# pip install "langchain-community<0.0.10"
+# pip install "langchain-openai<0.0.6"
+
+# openai                                   1.87.0
+# langchain                                0.0.334
+# langchain-community                      0.0.8
+# langchain-core                           0.1.23
+# langchain-openai                         0.0.5

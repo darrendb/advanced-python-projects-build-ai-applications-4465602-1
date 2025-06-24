@@ -3,6 +3,19 @@
 
 2. Here's how to create an AWS S3 bucket - https://docs.aws.amazon.com/AmazonS3/latest/userguide/creating-bucket.html
 
+3. run CH_3_DocuChat...
+4. http://127.0.0.1:8000/docs for the fast-api page (swagger like)
+5. upload file > try it
+6. copy the file path from the response body
+```
+{
+  "filename": "Resume-Darren-Benston-Apr-2025.pdf",
+  "file_path": "s3://greentacklebox/documents/Resume-Darren-Benston-Apr-2025.pdf"
+}
+```
+### 🔖 Diff of requirements (you were here) 
+![Diff of previous version of requirements.txt](/Finish//assets/CH_3_Requirements.txt-diff.png)
+
 
 
 # Advanced Python Projects: Build AI Applications

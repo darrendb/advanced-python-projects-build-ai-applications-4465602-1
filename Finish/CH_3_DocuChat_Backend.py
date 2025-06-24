@@ -1,5 +1,13 @@
+""" CH_3_DocuChat_Backend.py
+This module implements a FastAPI application that allows users to chat with documents.
+It provides endpoints for uploading files to Amazon S3, creating chat messages, and retrieving responses based on user queries.
+"""
 # Import os and sys for system-related operations
-import os, sys
+import os
+import sys
+import gc
+import uuid
+from typing import List
 import traceback  # Import traceback for error handling
 from pydantic import BaseModel
 import pymongo
@@ -10,50 +18,41 @@ from fastapi import (
     status,
     HTTPException,
 )  # Import FastAPI components for building the web application
-from fastapi.responses import JSONResponse  # Import JSONResponse for returning JSON responses
-from fastapi.middleware.cors import CORSMiddleware  # Import CORS middleware to handle Cross-Origin Resource Sharing
+from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings
-# from langchain_community.vectorstores import FAISS
+from langchain_openai import ChatOpenAI
 from langchain_community.vectorstores.faiss import FAISS
-# from langchain_community.document_loaders import S3FileLoader
 from langchain_community.document_loaders import Docx2txtLoader,PyPDFLoader
-
-
 from langchain_community.callbacks import get_openai_callback
 from langchain.chains import ConversationalRetrievalChain
 
-from langchain_openai import ChatOpenAI
-import gc
-
-import urllib.parse
+from urllib.parse import quote_plus
 import awswrangler as wr  # Import AWS Wrangler for working with AWS services
 
 import boto3  # Import the boto3 library for interacting with AWS services
+import uvicorn
 
 # Load environment variables from a `.secrets.env` file (used for local development)
-load_dotenv(dotenv_path=".env")
+load_dotenv()
 # os.getenv('ENV_VAR_NAME')
 # Retrieve and assign environment variables to variables
 S3_KEY = os.getenv("S3_KEY")  # AWS S3 access key
 S3_SECRET = os.getenv("S3_SECRET")  # AWS S3 secret access key
 S3_BUCKET = os.getenv("S3_BUCKET")  # AWS S3 bucket name
 S3_REGION = os.getenv("S3_REGION")  # AWS S3 region
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")  # OpenAI API key
-MONGO_URL = os.getenv("MONGO_URL")  # MongoDB connection URL
 S3_PATH = os.getenv("S3_PATH")  # AWS S3 path
-
+MONGO_URL = os.getenv("MONGO_URL")  # MongoDB connection URL
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")  # OpenAI API key
 
 try:
-    MONGO_URL="Add your credentials"
-
     # Connect to the MongoDB using the provided MONGO_URL
     client = pymongo.MongoClient(MONGO_URL, uuidRepresentation="standard")
     # Access the "chat_with_doc" database
     db = client["chat_with_doc"]
     # Access the "chat-history" collection within the database
     conversationcol = db["chat-history"]
-
     # Create an index on the "session_id" field, ensuring uniqueness
     conversationcol.create_index([("session_id")], unique=True)
 except:
@@ -113,7 +112,7 @@ def get_response(
     """
     embeddings = OpenAIEmbeddings()  # load embeddings
     # download file from s3
-    wr.s3.download(path=f"s3://docchat/documents/{file_name}",local_file=file_name,boto3_session=aws_s3)
+    wr.s3.download(path=f"s3://greentacklebox/documents/{file_name}",local_file=file_name,boto3_session=aws_s3)
 
     # loader = S3FileLoader(
     #     bucket=S3_BUCKET,
@@ -133,21 +132,25 @@ def get_response(
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=1000, chunk_overlap=0, separators=["\n", " ", ""]
     )
-
+    print("splitting done ...")
     all_splits = text_splitter.split_documents(data)
+    print("all_splits...")
     # 3. store data in vector db to conduct searc
     # from langchain_community.vectorstores import FAISS
     vectorstore = FAISS.from_documents(all_splits, embeddings)
+    print("vectorstore: ", vectorstore)
     # 4. Init openai
     llm = ChatOpenAI(model_name=model, temperature=temperature)
-
+    print("llm: ", llm)
     # 5. pass the data to openai chain using vector db
     qa_chain = ConversationalRetrievalChain.from_llm(
         llm,
         retriever=vectorstore.as_retriever(),
     )
+    print("** don't get here...")
     # use the function to determine tokens used
     with get_openai_callback() as cb:
+        print("querying ...")
         answer = qa_chain(
             {
                 "question": query,  # user query
@@ -163,8 +166,6 @@ def get_response(
         answer["total_tokens_used"] = cb.total_tokens
     gc.collect()  # collect garbage from memory
     return answer
-import uuid
-from typing import List
 
 
 def load_memory_to_pass(session_id: str):
@@ -251,7 +252,7 @@ app.add_middleware(
 aws_s3 = boto3.Session(
     aws_access_key_id=S3_KEY,  # Set the AWS access key ID
     aws_secret_access_key=S3_SECRET,  # Set the AWS secret access key
-    region_name="us-east-2",  # Set the AWS region
+    region_name=S3_REGION,  # Set the AWS region
 )
 
 
@@ -278,17 +279,18 @@ async def create_chat_message(
         HTTPException: If an unexpected error occurs during the chat message processing,
         it returns a 204 NO CONTENT HTTP status with an "error" detail.
     """
+    print("/chats")
     try:
         if chats.session_id is None:
             session_id = get_session()
-
+            print("session_id is None, creating new session")
             payload = ChatMessageSent(
                 session_id=session_id,
                 user_input=chats.user_input,
                 data_source=chats.data_source,
             )
             payload = payload.model_dump()
-
+            print("payload is ", payload)
             response = get_response(
                 file_name=payload.get("data_source"),
                 session_id=payload.get("session_id"),
@@ -314,7 +316,7 @@ async def create_chat_message(
                 data_source=chats.data_source,
             )
             payload = payload.dict()
-
+            print("payload is ", payload)
             response = get_response(
                 file_name=payload.get("data_source"),
                 session_id=payload.get("session_id"),
@@ -381,6 +383,5 @@ async def uploadtos3(data_file: UploadFile):
     return JSONResponse(content=response)
 
 
-import uvicorn
 if __name__=="__main__":
     uvicorn.run(app)
